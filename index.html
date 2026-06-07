@@ -1,10 +1,28 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Weirdcore Translate</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f6f8fc; font-family: 'Segoe UI', Arial, sans-serif; }
+  textarea { font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
 
 const cipher = {
-  A: "?", B: "ψ", C: "ɸ", D: "♦", E: "3", F: "O", G: "8",
-  H: "☹", I: "5", J: "ท", K: "2", L: "J", M: "W", N: "S",
-  O: "⊙", P: "q", Q: "Ø", R: "♡", S: "+", T: "✝", U: "¿",
-  V: "⛤", W: "Ш", X: "✗", Y: "y", Z: "!?"
+  A:"?", B:"ψ", C:"ɸ", D:"♦", E:"3", F:"O", G:"8",
+  H:"☹", I:"5", J:"ท", K:"2", L:"J", M:"W", N:"S",
+  O:"⊙", P:"q", Q:"Ø", R:"♡", S:"+", T:"✝", U:"¿",
+  V:"⛤", W:"Ш", X:"✗", Y:"y", Z:"!?"
 };
 
 function toWeird(text) {
@@ -39,7 +57,7 @@ function fromWeird(text) {
   return r;
 }
 
-export default function App() {
+function App() {
   const [mode, setMode] = useState("toWeird");
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
@@ -54,6 +72,15 @@ export default function App() {
     navigator.clipboard.writeText(output).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      const el = document.createElement("textarea");
+      el.value = output;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     });
   }
 
@@ -66,123 +93,76 @@ export default function App() {
   const toLang   = mode === "toWeird" ? "Weirdcore" : "English / Deutsch";
 
   return (
-    <div style={{ minHeight:"100vh", background:"#f6f8fc", fontFamily:"'Segoe UI',Arial,sans-serif", display:"flex", flexDirection:"column" }}>
+    <div style={{minHeight:"100vh", background:"#f6f8fc", fontFamily:"'Segoe UI',Arial,sans-serif", display:"flex", flexDirection:"column"}}>
 
-      {/* ── TOP NAV ── */}
-      <div style={{ background:"#fff", borderBottom:"1px solid #e2e6ea", padding:"0 1rem", display:"flex", alignItems:"center", height:56, boxShadow:"0 1px 3px #0001" }}>
-        <div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#1a1a2e,#6a0dad)", display:"flex", alignItems:"center", justifyContent:"center", color:"#c8ff00", fontWeight:900, fontSize:"1rem", marginRight:"0.7rem", flexShrink:0 }}>W</div>
-        <span style={{ fontWeight:700, fontSize:"1.05rem", color:"#1a1a2e", letterSpacing:"-0.01em" }}>Weirdcore Translate</span>
-        <button
-          onClick={() => setShowRef(v => !v)}
-          style={{ marginLeft:"auto", background: showRef ? "#e8f0fe" : "none", border:"1px solid #dadce0", borderRadius:20, padding:"0.3rem 1rem", fontSize:"0.78rem", color: showRef ? "#1a73e8" : "#444", cursor:"pointer", fontWeight:500 }}
-        >
-          {showRef ? "✕ Close cipher" : "A–Z Cipher"}
+      {/* NAV */}
+      <div style={{background:"#fff", borderBottom:"1px solid #e2e6ea", padding:"0 1rem", display:"flex", alignItems:"center", height:56, boxShadow:"0 1px 3px #0001"}}>
+        <div style={{width:34, height:34, borderRadius:"50%", background:"linear-gradient(135deg,#1a1a2e,#6a0dad)", display:"flex", alignItems:"center", justifyContent:"center", color:"#c8ff00", fontWeight:900, fontSize:"1rem", marginRight:"0.7rem", flexShrink:0}}>W</div>
+        <span style={{fontWeight:700, fontSize:"1.05rem", color:"#1a1a2e"}}>Weirdcore Translate</span>
+        <button onClick={() => setShowRef(v => !v)}
+          style={{marginLeft:"auto", background: showRef?"#e8f0fe":"none", border:"1px solid #dadce0", borderRadius:20, padding:"0.3rem 1rem", fontSize:"0.78rem", color: showRef?"#1a73e8":"#444", cursor:"pointer", fontWeight:500}}>
+          {showRef ? "✕ Close" : "A–Z Cipher"}
         </button>
       </div>
 
-      {/* ── LANGUAGE SELECTOR BAR ── */}
-      <div style={{ background:"#fff", borderBottom:"1px solid #e2e6ea", display:"flex", alignItems:"center", padding:"0 1rem", height:52 }}>
-        {/* From language pill */}
-        <div style={{ flex:1, display:"flex", justifyContent:"center" }}>
-          <div style={{ background:"#e8f0fe", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#1a73e8", letterSpacing:"0.01em" }}>
+      {/* LANGUAGE BAR */}
+      <div style={{background:"#fff", borderBottom:"1px solid #e2e6ea", display:"flex", alignItems:"center", padding:"0 1rem", height:52}}>
+        <div style={{flex:1, display:"flex", justifyContent:"center"}}>
+          <div style={{background:"#e8f0fe", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#1a73e8"}}>
             {fromLang}
           </div>
         </div>
-
-        {/* Swap button — centered, prominent */}
-        <button
-          onClick={swap}
-          title="Swap languages"
-          style={{
-            width:40, height:40, borderRadius:"50%",
-            background:"#fff", border:"2px solid #1a73e8",
-            color:"#1a73e8", fontSize:"1.15rem",
-            display:"flex", alignItems:"center", justifyContent:"center",
-            cursor:"pointer", flexShrink:0,
-            boxShadow:"0 1px 4px #1a73e820",
-            transition:"background 0.15s",
-          }}
-          onMouseEnter={e => e.currentTarget.style.background="#e8f0fe"}
-          onMouseLeave={e => e.currentTarget.style.background="#fff"}
-        >⇄</button>
-
-        {/* To language pill */}
-        <div style={{ flex:1, display:"flex", justifyContent:"center" }}>
-          <div style={{ background:"#f1f3f4", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#444" }}>
+        <button onClick={swap}
+          style={{width:42, height:42, borderRadius:"50%", background:"#fff", border:"2px solid #1a73e8", color:"#1a73e8", fontSize:"1.2rem", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, boxShadow:"0 1px 4px #1a73e820"}}>
+          ⇄
+        </button>
+        <div style={{flex:1, display:"flex", justifyContent:"center"}}>
+          <div style={{background:"#f1f3f4", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#444"}}>
             {toLang}
           </div>
         </div>
       </div>
 
-      {/* ── TRANSLATOR BODY ── */}
-      <div style={{ display:"flex", flexDirection:"column", flex:1, maxWidth:720, width:"100%", margin:"0 auto", padding:"1rem", gap:"0.75rem" }}>
+      {/* BODY */}
+      <div style={{display:"flex", flexDirection:"column", flex:1, maxWidth:720, width:"100%", margin:"0 auto", padding:"1rem", gap:"0.75rem"}}>
 
         {/* INPUT CARD */}
-        <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden" }}>
-          <div style={{ padding:"0.6rem 1rem 0", display:"flex", alignItems:"center", gap:"0.4rem" }}>
-            <span style={{ fontSize:"0.72rem", fontWeight:600, color:"#888", textTransform:"uppercase", letterSpacing:"0.07em" }}>{fromLang}</span>
-            {input && <button onClick={() => setInput("")} style={{ marginLeft:"auto", background:"none", border:"none", color:"#aaa", fontSize:"1.1rem", cursor:"pointer", lineHeight:1 }}>✕</button>}
+        <div style={{background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden"}}>
+          <div style={{padding:"0.6rem 1rem 0", display:"flex", alignItems:"center"}}>
+            <span style={{fontSize:"0.72rem", fontWeight:600, color:"#888", textTransform:"uppercase", letterSpacing:"0.07em"}}>{fromLang}</span>
+            {input && <button onClick={() => setInput("")} style={{marginLeft:"auto", background:"none", border:"none", color:"#aaa", fontSize:"1.1rem", cursor:"pointer"}}>✕</button>}
           </div>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder={mode === "toWeird" ? "Enter text to translate…" : "Paste Weirdcore symbols…"}
-            style={{
-              width:"100%", border:"none", outline:"none", resize:"none",
-              fontSize:"1.25rem", color:"#1a1a2e", padding:"0.5rem 1rem 0.3rem",
-              background:"transparent", minHeight:120, lineHeight:1.65,
-              fontFamily: mode === "fromWeird" ? "monospace" : "inherit",
-            }}
+            style={{width:"100%", border:"none", outline:"none", resize:"none", fontSize:"1.25rem", color:"#1a1a2e", padding:"0.5rem 1rem 0.3rem", background:"transparent", minHeight:130, lineHeight:1.65, fontFamily: mode==="fromWeird"?"monospace":"inherit"}}
           />
-          <div style={{ padding:"0.3rem 1rem 0.6rem", display:"flex", justifyContent:"flex-end" }}>
-            <span style={{ fontSize:"0.7rem", color:"#ccc" }}>{input.length} / ∞</span>
+          <div style={{padding:"0.3rem 1rem 0.6rem", display:"flex", justifyContent:"flex-end"}}>
+            <span style={{fontSize:"0.7rem", color:"#ccc"}}>{input.length} chars</span>
           </div>
         </div>
 
         {/* OUTPUT CARD */}
-        <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden", minHeight:160 }}>
-          <div style={{ padding:"0.6rem 1rem 0", display:"flex", alignItems:"center" }}>
-            <span style={{ fontSize:"0.72rem", fontWeight:600, color:"#1a73e8", textTransform:"uppercase", letterSpacing:"0.07em" }}>{toLang}</span>
+        <div style={{background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden", minHeight:160}}>
+          <div style={{padding:"0.6rem 1rem 0"}}>
+            <span style={{fontSize:"0.72rem", fontWeight:600, color:"#1a73e8", textTransform:"uppercase", letterSpacing:"0.07em"}}>{toLang}</span>
           </div>
-
-          <div style={{ padding:"0.4rem 1rem 0.8rem", minHeight:100 }}>
+          <div style={{padding:"0.4rem 1rem 0.8rem", minHeight:100}}>
             {output ? (
-              <div
-                style={{
-                  fontSize: mode === "toWeird" ? "1.45rem" : "1.2rem",
-                  color:"#1a1a2e",
-                  lineHeight: mode === "toWeird" ? 2.1 : 1.7,
-                  letterSpacing: mode === "toWeird" ? "0.12em" : "normal",
-                  fontFamily:"monospace",
-                  whiteSpace:"pre-wrap",
-                  wordBreak:"break-all",
-                  userSelect:"all",
-                  WebkitUserSelect:"all",
-                }}
-              >{output}</div>
+              <div style={{fontSize: mode==="toWeird"?"1.45rem":"1.2rem", color:"#1a1a2e", lineHeight: mode==="toWeird"?2.1:1.7, letterSpacing: mode==="toWeird"?"0.12em":"normal", fontFamily:"monospace", whiteSpace:"pre-wrap", wordBreak:"break-all", userSelect:"all", WebkitUserSelect:"all"}}>
+                {output}
+              </div>
             ) : (
-              <div style={{ color:"#d0d0d0", fontSize:"1rem", paddingTop:"0.5rem" }}>Translation appears here…</div>
+              <div style={{color:"#d0d0d0", fontSize:"1rem", paddingTop:"0.5rem"}}>Translation appears here…</div>
             )}
           </div>
-
-          {/* Bottom action bar */}
           {output && (
-            <div style={{ borderTop:"1px solid #f0f0f0", padding:"0.5rem 0.8rem", display:"flex", gap:"0.5rem", alignItems:"center" }}>
-              <button onClick={copy} style={{
-                display:"flex", alignItems:"center", gap:"0.35rem",
-                background: copied ? "#e6f4ea" : "#e8f0fe",
-                border:"none", borderRadius:20, padding:"0.45rem 1.1rem",
-                color: copied ? "#137333" : "#1a73e8",
-                fontWeight:600, fontSize:"0.83rem", cursor:"pointer",
-              }}>
+            <div style={{borderTop:"1px solid #f0f0f0", padding:"0.5rem 0.8rem", display:"flex", gap:"0.5rem"}}>
+              <button onClick={copy} style={{display:"flex", alignItems:"center", gap:"0.35rem", background: copied?"#e6f4ea":"#e8f0fe", border:"none", borderRadius:20, padding:"0.45rem 1.1rem", color: copied?"#137333":"#1a73e8", fontWeight:600, fontSize:"0.83rem", cursor:"pointer"}}>
                 {copied ? "✓ Copied!" : "⎘ Copy"}
               </button>
-              <button onClick={swap} style={{
-                display:"flex", alignItems:"center", gap:"0.35rem",
-                background:"#f1f3f4", border:"none", borderRadius:20,
-                padding:"0.45rem 1.1rem",
-                color:"#444", fontWeight:600, fontSize:"0.83rem", cursor:"pointer",
-              }}>
+              <button onClick={swap} style={{background:"#f1f3f4", border:"none", borderRadius:20, padding:"0.45rem 1.1rem", color:"#444", fontWeight:600, fontSize:"0.83rem", cursor:"pointer"}}>
                 ⇄ Use as input
               </button>
             </div>
@@ -191,15 +171,13 @@ export default function App() {
 
         {/* CIPHER PANEL */}
         {showRef && (
-          <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", padding:"1rem" }}>
-            <div style={{ fontWeight:700, fontSize:"0.78rem", color:"#888", letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"0.75rem" }}>
-              Cipher Reference — A to Z
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(58px,1fr))", gap:"0.4rem" }}>
+          <div style={{background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", padding:"1rem"}}>
+            <div style={{fontWeight:700, fontSize:"0.78rem", color:"#888", letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"0.75rem"}}>Cipher Reference — A to Z</div>
+            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(58px,1fr))", gap:"0.4rem"}}>
               {Object.entries(cipher).map(([l, s]) => (
-                <div key={l} style={{ background:"#f8f9ff", border:"1px solid #e8eaf6", borderRadius:10, padding:"0.5rem 0.2rem", textAlign:"center" }}>
-                  <div style={{ fontSize:"0.65rem", color:"#aaa", fontWeight:700, letterSpacing:"0.05em" }}>{l}</div>
-                  <div style={{ fontSize:"1.25rem", color:"#1a1a2e", lineHeight:1.4 }}>{s}</div>
+                <div key={l} style={{background:"#f8f9ff", border:"1px solid #e8eaf6", borderRadius:10, padding:"0.5rem 0.2rem", textAlign:"center"}}>
+                  <div style={{fontSize:"0.65rem", color:"#aaa", fontWeight:700}}>{l}</div>
+                  <div style={{fontSize:"1.25rem", color:"#1a1a2e", lineHeight:1.4}}>{s}</div>
                 </div>
               ))}
             </div>
@@ -209,3 +187,8 @@ export default function App() {
     </div>
   );
 }
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
