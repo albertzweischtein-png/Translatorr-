@@ -7,48 +7,46 @@ const cipher = {
   V: "⛤", W: "Ш", X: "✗", Y: "y", Z: "!?"
 };
 
-const reverseCipher = {};
-for (const [l, s] of Object.entries(cipher)) reverseCipher[s] = l;
-
 function toWeird(text) {
-  let result = "";
-  for (const char of text.toUpperCase()) {
-    if (char === " ") result += "  ";
-    else if (char === "\n") result += "\n";
-    else if (cipher[char]) result += cipher[char];
-    else result += char;
+  let r = "";
+  for (const c of text.toUpperCase()) {
+    if (c === " ") r += "  ";
+    else if (c === "\n") r += "\n";
+    else if (cipher[c]) r += cipher[c];
+    else r += c;
   }
-  return result;
+  return r;
 }
 
 function fromWeird(text) {
-  let result = "";
+  let r = "";
   const chars = [...text];
   let i = 0;
   while (i < chars.length) {
-    const two = chars[i] + (chars[i + 1] || "");
-    if (two === "!?") { result += "Z"; i += 2; continue; }
-    if (two === "  ") { result += " "; i += 2; continue; }
+    const two = chars[i] + (chars[i+1] || "");
+    if (two === "!?") { r += "Z"; i += 2; continue; }
+    if (two === "  ") { r += " "; i += 2; continue; }
     const ch = chars[i];
-    if (ch === "\n") { result += "\n"; i++; continue; }
+    if (ch === "\n") { r += "\n"; i++; continue; }
     if (ch === " ") { i++; continue; }
     let found = false;
-    for (const [letter, sym] of Object.entries(cipher)) {
-      if (sym === ch) { result += letter; found = true; break; }
+    for (const [l, s] of Object.entries(cipher)) {
+      if (s === ch) { r += l; found = true; break; }
     }
-    if (!found) result += /[a-z]/i.test(ch) ? ch.toUpperCase() : ch;
+    if (!found) r += /[a-z]/i.test(ch) ? ch.toUpperCase() : ch;
     i++;
   }
-  return result;
+  return r;
 }
 
 export default function App() {
   const [mode, setMode] = useState("toWeird");
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showRef, setShowRef] = useState(false);
 
   const output = input.trim()
-    ? mode === "toWeird" ? toWeird(input) : fromWeird(input)
+    ? (mode === "toWeird" ? toWeird(input) : fromWeird(input))
     : "";
 
   function copy() {
@@ -56,124 +54,157 @@ export default function App() {
     navigator.clipboard.writeText(output).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {
-      // fallback: select all
     });
   }
 
-  const isWeirdOutput = mode === "toWeird";
+  function swap() {
+    setMode(m => m === "toWeird" ? "fromWeird" : "toWeird");
+    setInput(output);
+  }
+
+  const fromLang = mode === "toWeird" ? "English / Deutsch" : "Weirdcore";
+  const toLang   = mode === "toWeird" ? "Weirdcore" : "English / Deutsch";
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0a0a0f",
-      backgroundImage: "radial-gradient(ellipse at 20% 20%, #1a0a2e 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, #0a1a2e 0%, transparent 50%)",
-      color: "#e8e8f0",
-      fontFamily: "monospace",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      padding: "2rem 1rem",
-    }}>
-      <h1 style={{
-        fontFamily: "monospace",
-        fontSize: "clamp(2rem, 10vw, 3.5rem)",
-        color: "#c8ff00",
-        textShadow: "0 0 20px #c8ff0044, 0 0 60px #c8ff0022",
-        letterSpacing: "0.05em",
-        marginBottom: "0.2rem",
-      }}>WEIRDCORE</h1>
-      <p style={{ color: "#666688", fontSize: "0.75rem", letterSpacing: "0.3em", marginBottom: "2rem", textTransform: "uppercase" }}>
-        Sprach-Übersetzer
-      </p>
+    <div style={{ minHeight:"100vh", background:"#f6f8fc", fontFamily:"'Segoe UI',Arial,sans-serif", display:"flex", flexDirection:"column" }}>
 
-      {/* Mode Toggle */}
-      <div style={{ display: "flex", marginBottom: "1.5rem", border: "1px solid #2a2a3a", borderRadius: 4, overflow: "hidden" }}>
-        {[["toWeird", "DE/EN → WEIRD"], ["fromWeird", "WEIRD → DE/EN"]].map(([m, label]) => (
-          <button key={m} onClick={() => { setMode(m); setInput(""); }}
-            style={{
-              background: mode === m ? "#c8ff00" : "#111118",
-              border: "none", color: mode === m ? "#000" : "#666688",
-              padding: "0.6rem 1rem", fontFamily: "monospace", fontSize: "0.85rem",
-              cursor: "pointer", letterSpacing: "0.05em", fontWeight: mode === m ? "bold" : "normal",
-            }}>{label}</button>
-        ))}
+      {/* ── TOP NAV ── */}
+      <div style={{ background:"#fff", borderBottom:"1px solid #e2e6ea", padding:"0 1rem", display:"flex", alignItems:"center", height:56, boxShadow:"0 1px 3px #0001" }}>
+        <div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#1a1a2e,#6a0dad)", display:"flex", alignItems:"center", justifyContent:"center", color:"#c8ff00", fontWeight:900, fontSize:"1rem", marginRight:"0.7rem", flexShrink:0 }}>W</div>
+        <span style={{ fontWeight:700, fontSize:"1.05rem", color:"#1a1a2e", letterSpacing:"-0.01em" }}>Weirdcore Translate</span>
+        <button
+          onClick={() => setShowRef(v => !v)}
+          style={{ marginLeft:"auto", background: showRef ? "#e8f0fe" : "none", border:"1px solid #dadce0", borderRadius:20, padding:"0.3rem 1rem", fontSize:"0.78rem", color: showRef ? "#1a73e8" : "#444", cursor:"pointer", fontWeight:500 }}
+        >
+          {showRef ? "✕ Close cipher" : "A–Z Cipher"}
+        </button>
       </div>
 
-      <div style={{ width: "100%", maxWidth: 600, display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {/* Input */}
-        <div style={{ background: "#111118", border: "1px solid #2a2a3a", borderRadius: 6, padding: "1rem" }}>
-          <div style={{ color: "#c8ff00", fontSize: "0.85rem", letterSpacing: "0.2em", marginBottom: "0.5rem", textTransform: "uppercase" }}>
-            ✦ {mode === "toWeird" ? "Eingabe (Deutsch / English)" : "Weirdcore Eingabe"}
+      {/* ── LANGUAGE SELECTOR BAR ── */}
+      <div style={{ background:"#fff", borderBottom:"1px solid #e2e6ea", display:"flex", alignItems:"center", padding:"0 1rem", height:52 }}>
+        {/* From language pill */}
+        <div style={{ flex:1, display:"flex", justifyContent:"center" }}>
+          <div style={{ background:"#e8f0fe", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#1a73e8", letterSpacing:"0.01em" }}>
+            {fromLang}
+          </div>
+        </div>
+
+        {/* Swap button — centered, prominent */}
+        <button
+          onClick={swap}
+          title="Swap languages"
+          style={{
+            width:40, height:40, borderRadius:"50%",
+            background:"#fff", border:"2px solid #1a73e8",
+            color:"#1a73e8", fontSize:"1.15rem",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            cursor:"pointer", flexShrink:0,
+            boxShadow:"0 1px 4px #1a73e820",
+            transition:"background 0.15s",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background="#e8f0fe"}
+          onMouseLeave={e => e.currentTarget.style.background="#fff"}
+        >⇄</button>
+
+        {/* To language pill */}
+        <div style={{ flex:1, display:"flex", justifyContent:"center" }}>
+          <div style={{ background:"#f1f3f4", borderRadius:20, padding:"0.35rem 1.1rem", fontWeight:700, fontSize:"0.88rem", color:"#444" }}>
+            {toLang}
+          </div>
+        </div>
+      </div>
+
+      {/* ── TRANSLATOR BODY ── */}
+      <div style={{ display:"flex", flexDirection:"column", flex:1, maxWidth:720, width:"100%", margin:"0 auto", padding:"1rem", gap:"0.75rem" }}>
+
+        {/* INPUT CARD */}
+        <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden" }}>
+          <div style={{ padding:"0.6rem 1rem 0", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+            <span style={{ fontSize:"0.72rem", fontWeight:600, color:"#888", textTransform:"uppercase", letterSpacing:"0.07em" }}>{fromLang}</span>
+            {input && <button onClick={() => setInput("")} style={{ marginLeft:"auto", background:"none", border:"none", color:"#aaa", fontSize:"1.1rem", cursor:"pointer", lineHeight:1 }}>✕</button>}
           </div>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder={mode === "toWeird" ? "Text hier eingeben..." : "Weirdcore Symbole eingeben..."}
+            placeholder={mode === "toWeird" ? "Enter text to translate…" : "Paste Weirdcore symbols…"}
             style={{
-              width: "100%", background: "#0d0d15", border: "1px solid #2a2a3a",
-              borderRadius: 4, color: "#e8e8f0", fontFamily: "monospace",
-              fontSize: "1rem", padding: "0.8rem", resize: "vertical",
-              minHeight: 100, outline: "none", lineHeight: 1.6,
+              width:"100%", border:"none", outline:"none", resize:"none",
+              fontSize:"1.25rem", color:"#1a1a2e", padding:"0.5rem 1rem 0.3rem",
+              background:"transparent", minHeight:120, lineHeight:1.65,
+              fontFamily: mode === "fromWeird" ? "monospace" : "inherit",
             }}
           />
+          <div style={{ padding:"0.3rem 1rem 0.6rem", display:"flex", justifyContent:"flex-end" }}>
+            <span style={{ fontSize:"0.7rem", color:"#ccc" }}>{input.length} / ∞</span>
+          </div>
         </div>
 
-        {/* Output */}
-        <div style={{ background: "#111118", border: "1px solid #2a2a3a", borderRadius: 6, padding: "1rem", position: "relative" }}>
-          <div style={{ color: "#c8ff00", fontSize: "0.85rem", letterSpacing: "0.2em", marginBottom: "0.5rem", textTransform: "uppercase" }}>
-            ✦ {mode === "toWeird" ? "Weirdcore Ausgabe" : "Ausgabe (Deutsch / English)"}
+        {/* OUTPUT CARD */}
+        <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", overflow:"hidden", minHeight:160 }}>
+          <div style={{ padding:"0.6rem 1rem 0", display:"flex", alignItems:"center" }}>
+            <span style={{ fontSize:"0.72rem", fontWeight:600, color:"#1a73e8", textTransform:"uppercase", letterSpacing:"0.07em" }}>{toLang}</span>
           </div>
-          <button onClick={copy} style={{
-            position: "absolute", top: "0.8rem", right: "0.8rem",
-            background: "transparent", border: `1px solid ${copied ? "#ff2d6b" : "#2a2a3a"}`,
-            color: copied ? "#ff2d6b" : "#666688", fontFamily: "monospace",
-            fontSize: "0.85rem", padding: "0.2rem 0.7rem", cursor: "pointer",
-            borderRadius: 3, letterSpacing: "0.1em",
-          }}>{copied ? "✓ KOPIERT!" : "COPY"}</button>
 
-          <div
-            onClick={copy}
-            style={{
-              background: "#0d0d15", border: "1px solid #2a2a3a", borderRadius: 4,
-              padding: "0.8rem", minHeight: 100,
-              fontSize: isWeirdOutput ? "1.4rem" : "1rem",
-              lineHeight: isWeirdOutput ? 2 : 1.6,
-              letterSpacing: isWeirdOutput ? "0.15em" : "normal",
-              color: isWeirdOutput ? "#c8ff00" : "#e8e8f0",
-              textShadow: isWeirdOutput ? "0 0 8px #c8ff0044" : "none",
-              wordBreak: "break-all", cursor: "pointer",
-              userSelect: "all", WebkitUserSelect: "all",
-              whiteSpace: "pre-wrap",
-            }}
-            title="Tippen zum Kopieren"
-          >
-            {output || <span style={{ color: "#333" }}>— hier erscheint die Übersetzung —</span>}
+          <div style={{ padding:"0.4rem 1rem 0.8rem", minHeight:100 }}>
+            {output ? (
+              <div
+                style={{
+                  fontSize: mode === "toWeird" ? "1.45rem" : "1.2rem",
+                  color:"#1a1a2e",
+                  lineHeight: mode === "toWeird" ? 2.1 : 1.7,
+                  letterSpacing: mode === "toWeird" ? "0.12em" : "normal",
+                  fontFamily:"monospace",
+                  whiteSpace:"pre-wrap",
+                  wordBreak:"break-all",
+                  userSelect:"all",
+                  WebkitUserSelect:"all",
+                }}
+              >{output}</div>
+            ) : (
+              <div style={{ color:"#d0d0d0", fontSize:"1rem", paddingTop:"0.5rem" }}>Translation appears here…</div>
+            )}
           </div>
+
+          {/* Bottom action bar */}
           {output && (
-            <div style={{ fontSize: "0.7rem", color: "#444", marginTop: "0.4rem", textAlign: "center" }}>
-              Tippe auf den Text oder nutze COPY zum Kopieren
+            <div style={{ borderTop:"1px solid #f0f0f0", padding:"0.5rem 0.8rem", display:"flex", gap:"0.5rem", alignItems:"center" }}>
+              <button onClick={copy} style={{
+                display:"flex", alignItems:"center", gap:"0.35rem",
+                background: copied ? "#e6f4ea" : "#e8f0fe",
+                border:"none", borderRadius:20, padding:"0.45rem 1.1rem",
+                color: copied ? "#137333" : "#1a73e8",
+                fontWeight:600, fontSize:"0.83rem", cursor:"pointer",
+              }}>
+                {copied ? "✓ Copied!" : "⎘ Copy"}
+              </button>
+              <button onClick={swap} style={{
+                display:"flex", alignItems:"center", gap:"0.35rem",
+                background:"#f1f3f4", border:"none", borderRadius:20,
+                padding:"0.45rem 1.1rem",
+                color:"#444", fontWeight:600, fontSize:"0.83rem", cursor:"pointer",
+              }}>
+                ⇄ Use as input
+              </button>
             </div>
           )}
         </div>
 
-        {/* Cipher Reference */}
-        <details style={{ background: "#111118", border: "1px solid #2a2a3a", borderRadius: 6, overflow: "hidden" }}>
-          <summary style={{ padding: "0.8rem 1rem", cursor: "pointer", color: "#666688", fontSize: "0.85rem", letterSpacing: "0.2em", textTransform: "uppercase" }}>
-            ▸ Cipher Referenz
-          </summary>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(70px, 1fr))", gap: "0.4rem", padding: "1rem" }}>
-            {Object.entries(cipher).map(([letter, symbol]) => (
-              <div key={letter} style={{
-                background: "#0d0d15", border: "1px solid #2a2a3a", borderRadius: 3,
-                padding: "0.4rem", textAlign: "center",
-              }}>
-                <div style={{ color: "#666688", fontSize: "0.85rem", fontFamily: "monospace" }}>{letter}</div>
-                <div style={{ color: "#c8ff00", fontSize: "1.1rem", textShadow: "0 0 5px #c8ff0044" }}>{symbol}</div>
-              </div>
-            ))}
+        {/* CIPHER PANEL */}
+        {showRef && (
+          <div style={{ background:"#fff", borderRadius:16, boxShadow:"0 1px 4px #0001, 0 0 0 1px #e2e6ea", padding:"1rem" }}>
+            <div style={{ fontWeight:700, fontSize:"0.78rem", color:"#888", letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"0.75rem" }}>
+              Cipher Reference — A to Z
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(58px,1fr))", gap:"0.4rem" }}>
+              {Object.entries(cipher).map(([l, s]) => (
+                <div key={l} style={{ background:"#f8f9ff", border:"1px solid #e8eaf6", borderRadius:10, padding:"0.5rem 0.2rem", textAlign:"center" }}>
+                  <div style={{ fontSize:"0.65rem", color:"#aaa", fontWeight:700, letterSpacing:"0.05em" }}>{l}</div>
+                  <div style={{ fontSize:"1.25rem", color:"#1a1a2e", lineHeight:1.4 }}>{s}</div>
+                </div>
+              ))}
+            </div>
           </div>
-        </details>
+        )}
       </div>
     </div>
   );
